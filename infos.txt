@@ -1,0 +1,21 @@
+Principal Component Analysis:
+
+Sometime data set has too many variables. May be, 100, 200 variables or even more.
+In such cases, you can’t build a model on all variables.
+Reason being,
+    1) It would be time consuming.
+    2) It might have lots of noise
+    3) A lot of variables will tell similar information
+
+Hence, to avoid such situation we use PCA a.k.a Principal Component Analysis.
+It is nothing but, finding out few ‘principal‘ variables which explain significant amount of variation in dependent variable.
+Using this technique, a large number of variables are reduced to few significant variables.
+This technique helps to reduce noise, redundancy and enables quick computations.
+
+
+
+----------------------------------------------------------------------------------------------------
+
+
+
+
