@@ -20,29 +20,22 @@ import pandas as pd
 from sqlalchemy import create_engine
 import pymysql
 
-#db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
-#db_connection = create_engine(db_connection_str)
+db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
+db_connection = create_engine(db_connection_str)
 
-#df = pd.read_sql('SELECT * FROM final_data_5parks_1hour', con=db_connection)
+df = pd.read_sql('SELECT * FROM final_data_5parks_1hour', con=db_connection)
 
-'''mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="test"
-)
+##df['occupancy'].describe()
 
-mycursor = mydb.cursor()
-time_zone = pytz.timezone('Europe/Brussels')
+bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-query = "SELECT * FROM dissertation.final_data_5parks_1hour"
-mycursor.execute(query)
-all_data = mycursor.fetchall()'''
+group_names = ['class1', 'class2', 'class3', 'class4', 'class5', 'class6', 'class7', 'class8', 'class9', 'class10']
+print(pd.cut(df['occupancy'], bins, labels=group_names).value_counts())
+df['class'] = pd.cut(df['occupancy'], bins, labels=group_names)
+
+print(df['class'])
 
 
-
-#print(df)
-
-x = 2
 
 
 

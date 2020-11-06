@@ -16,6 +16,7 @@ This technique helps to reduce noise, redundancy and enables quick computations.
 
 ----------------------------------------------------------------------------------------------------
 
-
+CUT and QCUT
+https://pbpython.com/pandas-qcut-cut.html
 
 
