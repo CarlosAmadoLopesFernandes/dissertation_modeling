@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
 
+
 db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
 db_connection = create_engine(db_connection_str)
 
@@ -112,7 +113,8 @@ Process finished with exit code 0
 '''
 
 
-
-
+import pickle
+pickle.dump(classifier, open('./../api/naive_bayes.pkl', 'wb'))
+pickle.dump(list(dataset.columns)[:-1], open('./../api/model_columns.pkl', 'wb'))
 
 
