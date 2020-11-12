@@ -151,41 +151,22 @@ print(accuracy_score(y_test, y_pred))
 print("DONE ***********")
 
 '''
-# Visualising the Training set results
-from matplotlib.colors import ListedColormap
-X_set, y_set = sc.inverse_transform(X_train), y_train
-X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 10, stop = X_set[:, 0].max() + 10, step = 1),
-                     np.arange(start = X_set[:, 1].min() - 1000, stop = X_set[:, 1].max() + 1000, step = 1))
-plt.contourf(X1, X2, classifier.predict(sc.transform(np.array([X1.ravel(), X2.ravel()]).T)).reshape(X1.shape),
-             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
-plt.xlim(X1.min(), X1.max())
-plt.ylim(X2.min(), X2.max())
-for i, j in enumerate(np.unique(y_set)):
-    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1], c = ListedColormap(('red', 'green'))(i), label = j)
-plt.title('K-NN (Training set)')
-plt.xlabel('Age')
-plt.ylabel('Estimated Salary')
-plt.legend()
-plt.show()
+[[   2    3    6   15   30   34   31   21   10    7]
+ [   3    7   26   51   49   89  107   78   25   27]
+ [   4   21   68  127  225  254  324  193  112   79]
+ [  18   63  142  278  455  632  671  536  262  169]
+ [  31   92  268  544  946 1270 1244  887  474  351]
+ [  40  125  395  799 1247 1830 1910 1364  679  453]
+ [  29  130  427  906 1459 2017 2121 1472  729  532]
+ [  33  145  386  827 1254 1845 1870 1349  617  465]
+ [  25   97  261  551  827 1251 1268  938  447  349]
+ [  35   79  248  501  797 1063 1117  831  417  269]]
+0.14579472771833343
+DONE ***********
 
-# Visualising the Test set results
-from matplotlib.colors import ListedColormap
-X_set, y_set = sc.inverse_transform(X_test), y_test
-X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 10, stop = X_set[:, 0].max() + 10, step = 1),
-                     np.arange(start = X_set[:, 1].min() - 1000, stop = X_set[:, 1].max() + 1000, step = 1))
-plt.contourf(X1, X2, classifier.predict(sc.transform(np.array([X1.ravel(), X2.ravel()]).T)).reshape(X1.shape),
-             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
-plt.xlim(X1.min(), X1.max())
-plt.ylim(X2.min(), X2.max())
-for i, j in enumerate(np.unique(y_set)):
-    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1], c = ListedColormap(('red', 'green'))(i), label = j)
-plt.title('K-NN (Test set)')
-plt.xlabel('Age')
-plt.ylabel('Estimated Salary')
-plt.legend()
-plt.show()'''
+Process finished with exit code 0
 
-
+'''
 
 
 

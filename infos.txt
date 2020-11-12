@@ -25,6 +25,24 @@ https://towardsdatascience.com/how-to-deal-with-missing-data-in-python-1f74a9112
 ENCODING CATEGORICAL DATA
 https://pbpython.com/categorical-encoding.html?fbclid=IwAR2fQXZRWCUZZhKSMxVTV2vj66ioAl3eemPSK3r_xX0H2wmhrzosBuJOofU
 
+-------------------------------------------------------------------------------------------------------
+
+'''
+
+    MULTI-CLASS CLASSIFICATION
+    Refers to those classification tasks that have more than two class labels.
+
+    Unlike binary classification, multi-class classification does not have the notion of normal and abnormal outcomes.
+    Instead, examples are classified as belonging to one among a range of known classes
+
+    Popular algorithms that can be used for mult-class classification include:
+        . KNN
+        . Decision trees
+        . Naive Bayes
+        . Random Forest
+        . Gradient Boosting
+'''
+
 
 
 
