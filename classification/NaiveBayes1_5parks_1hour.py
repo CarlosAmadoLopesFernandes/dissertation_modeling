@@ -108,13 +108,10 @@ print("DONE ***********")
 DONE ***********
 
 Process finished with exit code 0
-
-
 '''
 
-
-#import pickle
-#pickle.dump(classifier, open('./../api/naive_bayes.pkl', 'wb'))
-#pickle.dump(list(dataset.columns)[:-1], open('./../api/model_columns.pkl', 'wb'))
+import pickle
+pickle.dump(classifier, open('./../api/naive_bayes.pkl', 'wb'))
+pickle.dump(list(dataset.columns)[:-1], open('./../api/model_columns.pkl', 'wb'))
 
 
