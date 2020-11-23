@@ -15,7 +15,7 @@ accepted_columns = ['parkName', 'day', 'month', 'year', 'hour', 'weekDay', 'occu
 
 drop_cols = []
 
-dataset = pd.read_sql('SELECT * FROM final_data_10parks_1hour', con=db_connection)
+dataset = pd.read_sql('SELECT * FROM final_data_5parks_1hour', con=db_connection)
 
 for col in dataset.columns.tolist():
     if col not in accepted_columns:
@@ -72,8 +72,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random
 
 print("training model")
 # TRAINING THE NAIVE BAYES MODEL ON THE TRAINING SET
-from sklearn.naive_bayes import GaussianNB
-classifier = GaussianNB()
+from sklearn.svm import SVC
+classifier = SVC(kernel='linear', random_state=0)
 classifier.fit(X_train, y_train)
 
 # PREDICTING A NEW RESULT
@@ -94,25 +94,6 @@ print(accuracy_score(y_test, y_pred))
 print("DONE ***********")
 
 '''
-[[   0    0    0    0   31   37   90   41   16    8]
- [   0    0    0    0  111  148  315  190   71    4]
- [   0    0    0    0  327  449  996  535  229   49]
- [   0    0    0    0  811 1052 2392 1280  500   98]
- [   0    0    0    0 1447 1811 4493 2347  941  197]
- [   0    0    0    0 2144 2696 6427 3392 1316  285]
- [   0    0    0    0 2376 2903 7209 3785 1449  287]
- [   0    0    0    0 2016 2616 6352 3331 1368  289]
- [   0    0    0    0 1472 1855 4337 2343  920  189]
- [   0    0    0    0 1245 1650 3898 1985  814  196]]
-0.17142826141209405
-DONE ***********
-
-Process finished with exit code 0
 
 '''
-
-import pickle
-pickle.dump(classifier, open('../../api/models/10_parks_1_hour_scenario1/naive_bayes.pkl', 'wb'))
-pickle.dump(list(dataset.columns)[:-1], open('../../api/models/10_parks_1_hour_scenario1/model_columns.pkl', 'wb'))
-
 
