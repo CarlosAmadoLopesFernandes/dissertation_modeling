@@ -13,7 +13,7 @@ from Config import configs
 
 app = Flask(__name__)
 CORS(app)
-#model = pickle.load(open('models/5_parks_1hour_scenario1/naive_bayes.pkl', 'rb'))
+#model = pickle.load(open('models/5_parks_1hour_scenario_base/naive_bayes.pkl', 'rb'))
 #model_10parks_1hour_scenario1 = pickle.load(open('10_parks_hour_scenario1_naive_bayes.pkl', 'rb'))
 
 mydb = mysql.connector.connect(

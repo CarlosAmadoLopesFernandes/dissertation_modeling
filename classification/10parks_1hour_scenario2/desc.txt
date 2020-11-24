@@ -1,0 +1,6 @@
+DESCRIPTION SCENARIO:
+    Scenario with all variables
+    -> meteo data
+    -> park data
+    -> spaces data
+    -> isHoliday data
