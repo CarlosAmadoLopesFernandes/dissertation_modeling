@@ -1,34 +1,13 @@
-'''
-
-    MULTI-CLASS CLASSIFICATION
-    Refers to those classification tasks that have more than two class labels.
-
-    Unlike binary classification, multi-class classification does not have the notion of normal and abnormal outcomes.
-    Instead, examples are classified as belonging to one among a range of known classes
-
-    Popular algorithms that can be used for mult-class classification include:
-        . KNN
-        . Decision trees
-        . Naive Bayes
-        . Random Forest
-        . Gradient Boosting
-'''
-import mysql.connector
-from datetime import datetime
-import pytz
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
-import matplotlib.pyplot as plt
-import pymysql
+
 
 db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
 db_connection = create_engine(db_connection_str)
 
 accepted_columns = ['parkName', 'day', 'month', 'year', 'hour', 'weekDay', 'occupancy', 'isWeekend', 'isHoliday',
-                    'precipIntensity', 'precipProbability', 'temperature', 'apparentTemperature',
-                    'dewPoint', 'humidity', 'pressure', 'windSpeed', 'windGust', 'windBearing', 'cloudCover',
-                    'uvIndex', 'visibility', 'place1Type', 'place2Type', 'place3Type', 'place4Type', 'place5Type',
+                    'place1Type', 'place2Type', 'place3Type', 'place4Type', 'place5Type',
                     'parkingGroupName', 'numberOfSpaces', 'handicappedPlaces', 'hourlyPrice',
                     'has_car_washing', 'has_bike_sharing', 'has_bike_parking', 'has_elevator', 'has_information_point', 'has_toilet',
                     'has_petrol_station', 'has_shop', 'has_restaurant', 'has_electric_charging_station', 'has_overnight_accommodation',
@@ -67,20 +46,6 @@ dataset.drop(columns=['class'], inplace=True, axis=1)
 
 print(list(dataset.columns))
 
-##TAKING CARE OF MISSING DATA
-dataset['precipIntensity'].fillna(method='pad', inplace=True)
-dataset['precipProbability'].fillna(method='pad', inplace=True)
-dataset['temperature'].fillna(method='pad', inplace=True)
-dataset['apparentTemperature'].fillna(method='pad', inplace=True)
-dataset['windSpeed'].fillna(method='pad', inplace=True)
-dataset['humidity'].fillna(method='pad', inplace=True)
-dataset['pressure'].fillna(method='pad', inplace=True)
-dataset['windGust'].fillna(method='pad', inplace=True)
-dataset['windBearing'].fillna(method='pad', inplace=True)
-dataset['cloudCover'].fillna(method='pad', inplace=True)
-dataset['uvIndex'].fillna(method='pad', inplace=True)
-dataset['visibility'].fillna(method='pad', inplace=True)
-
 ## WHEN IS NULL, REPLACE BY ZERO
 dataset['handicappedPlaces'].fillna(0, inplace=True)
 
@@ -97,15 +62,12 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
 
 
-
 print("training model")
 # TRAINING THE KNN MODEL ON THE TRAINING SET
 from sklearn.neighbors import KNeighborsClassifier
 classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
 classifier.fit(X_train, y_train)
 
-# PREDICTING A NEW RESULT
-##print(classifier.predict(sc.transform([[30, 87000]])))
 
 print("predicting result")
 ## PREDICTING THE TEST SET RESULT
@@ -122,22 +84,19 @@ print(accuracy_score(y_test, y_pred))
 print("DONE ***********")
 
 '''
+
 MAKING CONFUSION MATRIX
-[[   1    2   12   24   28   47   38   41   16   14]
- [   2   21   35   75  116  190  168  132   55   45]
- [   9   32  103  255  420  513  540  409  172  132]
- [  31  103  287  555  888 1213 1315  918  494  329]
- [  54  173  504 1018 1724 2332 2326 1678  831  596]
- [  84  287  734 1482 2427 3342 3494 2439 1150  821]
- [  89  284  800 1676 2695 3626 3815 2778 1292  954]
- [  75  256  739 1505 2371 3297 3267 2471 1131  860]
- [  57  174  486 1073 1651 2232 2349 1703  841  550]
- [  51  141  442  896 1461 1975 2050 1505  731  536]]
-0.14549538307961069
-DONE ***********
-
-Process finished with exit code 0
-
+[[   2    2    7   27   25   50   45   33   15   17]
+ [   6   10   28   76  125  168  182  130   74   40]
+ [  12   34   96  241  368  535  541  419  207  132]
+ [  25   79  249  552  973 1313 1298  892  438  314]
+ [  55  176  500 1033 1662 2279 2327 1761  830  613]
+ [  84  290  709 1457 2346 3334 3489 2499 1186  866]
+ [  93  285  781 1641 2676 3705 3855 2779 1251  943]
+ [  84  240  706 1527 2405 3315 3290 2435 1147  823]
+ [  60  179  462 1004 1663 2209 2394 1736  816  593]
+ [  50  169  414  884 1498 1929 2059 1543  733  509]]
+0.1439980034938857
 
 '''
 
