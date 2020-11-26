@@ -1,0 +1,6 @@
+DESCRIPTION SCENARIO:
+    Scenario without park equipments and facilities
+    -> meteo data
+    -> park data
+    -> spaces data
+    -> isHoliday data
