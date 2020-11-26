@@ -71,12 +71,10 @@ from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
 
-
-
 print("training model")
-# TRAINING THE DECSISION TREE CLASSIFICATION MODEL ON THE TRAINING SET
-from sklearn.tree import DecisionTreeClassifier
-classifier = DecisionTreeClassifier(criterion='entropy', random_state=0)
+# TRAINING THE KNN MODEL ON THE TRAINING SET
+from sklearn.neighbors import KNeighborsClassifier
+classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
 classifier.fit(X_train, y_train)
 
 
@@ -96,19 +94,18 @@ print("DONE ***********")
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    2   13   14   26   41   38   31   33   24]
- [   3    6   35   59  103  137  178  143  100   75]
- [   9   31   76  196  332  432  515  423  325  246]
- [  23   62  219  424  742  996 1201 1114  718  634]
- [  33   97  314  763 1357 1948 2152 1989 1366 1217]
- [  53  180  494 1154 2016 2770 3202 2793 1933 1665]
- [  61  209  575 1220 2264 3118 3445 2964 2288 1865]
- [  57  161  473 1117 1960 2769 3070 2812 1943 1610]
- [  36  115  358  726 1359 1938 2127 1908 1337 1212]
- [  40  119  292  709 1244 1683 1881 1586 1238  996]]
-0.14348802638860256
+[[   1    2   11   25   28   47   38   41   16   14]
+ [   2   21   35   75  117  190  168  131   56   44]
+ [   9   33  103  253  419  514  541  410  172  131]
+ [  31  102  288  556  889 1208 1313  922  494  330]
+ [  53  175  501 1019 1721 2333 2323 1680  835  596]
+ [  84  288  735 1475 2429 3342 3504 2432 1151  820]
+ [  91  288  799 1672 2702 3621 3820 2781 1288  947]
+ [  75  255  737 1506 2367 3300 3272 2472 1128  860]
+ [  57  176  486 1071 1649 2227 2349 1709  840  552]
+ [  52  140  444  901 1459 1976 2052 1498  731  535]]
+0.14551708423302698
 DONE ***********
-
 
 '''
 

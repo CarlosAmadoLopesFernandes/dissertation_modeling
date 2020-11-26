@@ -78,8 +78,6 @@ from sklearn.ensemble import GradientBoostingClassifier
 classifier = GradientBoostingClassifier(n_estimators=10, criterion='friedman_mse', loss='deviance', learning_rate=0.1, random_state=0)
 classifier.fit(X_train, y_train)
 
-# PREDICTING A NEW RESULT
-##print(classifier.predict(sc.transform([[30, 87000]])))
 
 print("predicting result")
 ## PREDICTING THE TEST SET RESULT
