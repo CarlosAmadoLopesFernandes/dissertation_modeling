@@ -84,8 +84,6 @@ from sklearn.tree import DecisionTreeClassifier
 classifier = DecisionTreeClassifier(criterion='entropy', random_state=0)
 classifier.fit(X_train, y_train)
 
-# PREDICTING A NEW RESULT
-##print(classifier.predict(sc.transform([[30, 87000]])))
 
 print("predicting result")
 ## PREDICTING THE TEST SET RESULT

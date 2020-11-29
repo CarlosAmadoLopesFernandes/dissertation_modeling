@@ -13,14 +13,11 @@
         . Random Forest
         . Gradient Boosting
 '''
-import mysql.connector
-from datetime import datetime
-import pytz
+
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
-import matplotlib.pyplot as plt
-import pymysql
+
 
 db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
 db_connection = create_engine(db_connection_str)
@@ -92,10 +89,17 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
 
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 
 print("training model")
@@ -105,39 +109,68 @@ classifier = DecisionTreeClassifier(criterion='entropy', random_state=0)
 classifier.fit(X_train, y_train)
 
 
-# PREDICTING A NEW RESULT
-##print(classifier.predict(sc.transform([[30, 87000]])))
-
 print("predicting result")
 ## PREDICTING THE TEST SET RESULT
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    2    8   18   25   34   39   34   35   27]
- [   4    6   33   59  108  142  174  145   96   72]
- [   5   41   78  192  318  447  500  417  319  268]
- [  26   67  204  392  782 1019 1165 1112  710  656]
- [  36  113  326  774 1310 1979 2115 2011 1366 1206]
- [  54  183  497 1117 2010 2780 3187 2771 1935 1726]
- [  54  193  566 1237 2213 3071 3438 3086 2239 1912]
- [  58  161  446 1170 1913 2817 3109 2748 1884 1666]
- [  42  123  334  768 1376 1880 2113 1918 1355 1207]
- [  38  112  317  700 1208 1638 1910 1639 1191 1035]]
-0.14260912967524225
-DONE ***********
+[[   0    1   18   41   58   89  105  110   56   49]
+ [   7   14   43  114  199  296  317  303  200  166]
+ [  11   57  151  343  610  860  980  842  627  560]
+ [  21  114  375  798 1497 2137 2362 2188 1466 1271]
+ [  57  222  632 1491 2688 3933 4424 4034 2815 2359]
+ [  83  316  886 2088 3936 5775 6279 5616 3909 3362]
+ [  83  351 1016 2347 4356 6254 7132 6337 4449 3819]
+ [ 100  285  892 2091 3917 5516 6411 5655 3933 3392]
+ [  61  228  638 1424 2783 3811 4375 3812 2767 2347]
+ [  55  184  493 1202 2382 3411 3846 3360 2364 2081]]
+0.14681452466078201
+******* classification_report *********
+              precision    recall  f1-score   support
 
-Process finished with exit code 0
+           0       0.00      0.00      0.00       527
+           1       0.01      0.01      0.01      1659
+           2       0.03      0.03      0.03      5041
+           3       0.07      0.07      0.07     12229
+           4       0.12      0.12      0.12     22655
+           5       0.18      0.18      0.18     32250
+           6       0.20      0.20      0.20     36144
+           7       0.18      0.18      0.18     32192
+           8       0.12      0.12      0.12     22246
+           9       0.11      0.11      0.11     19378
+
+    accuracy                           0.15    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.15      0.15    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.14419790592958281, 0.14718168502142895, 0.1442599826388889, 0.13981119791666666, 0.08881293402777778, 0.11897786458333333, 0.09016927083333333, 0.11214192708333333, 0.13834635416666666, 0.14708116319444445]
+Accuracy: 12.71 %
+Accuracy: 0.1271 (0.0219)
 
 '''
 
