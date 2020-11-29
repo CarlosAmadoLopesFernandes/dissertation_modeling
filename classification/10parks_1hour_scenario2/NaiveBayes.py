@@ -92,9 +92,17 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 print("training model")
 # TRAINING THE NAIVE BAYES MODEL ON THE TRAINING SET
@@ -111,31 +119,64 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   0    0    0    0   30   28  112   29   16    8]
- [   0    0    0    0   99  109  417  142   67    5]
- [   0    0    0    0  286  343 1310  374  227   45]
- [   0    0    0    0  710  862 3031  950  493   87]
- [   0    0    0    0 1253 1445 5687 1733  932  186]
- [   0    0    0    0 1903 2025 8293 2477 1302  260]
- [   0    0    0    0 2093 2299 9163 2763 1424  267]
- [   0    0    0    0 1783 2069 8086 2418 1356  260]
- [   0    0    0    0 1303 1461 5523 1752  899  178]
- [   0    0    0    0 1099 1321 4986 1404  801  177]]
-0.17290393984440272
-DONE ***********
+[[    0     0     0     0   120   158   217     8    22     2]
+ [    0     0     0     0   389   493   696    32    49     0]
+ [    0     0     0     0  1194  1447  2171   104   124     1]
+ [    0     0     0     0  2889  3457  5280   263   336     4]
+ [    0     0     0     0  5300  6400  9839   492   619     5]
+ [    0     0     0     0  7566  9124 13906   697   953     4]
+ [    0     0     0     0  8438 10167 15715   842   973     9]
+ [    0     0     0     0  7685  9071 13852   711   860    13]
+ [    0     0     0     0  5260  6205  9675   493   607     6]
+ [    0     0     0     0  4539  5516  8325   423   573     2]]
+0.17067507229235954
 
-Process finished with exit code 0
+
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.00      0.00      0.00      1659
+           2       0.00      0.00      0.00      5041
+           3       0.00      0.00      0.00     12229
+           4       0.12      0.23      0.16     22655
+           5       0.18      0.28      0.22     32250
+           6       0.20      0.43      0.27     36144
+           7       0.17      0.02      0.04     32192
+           8       0.12      0.03      0.04     22246
+           9       0.04      0.00      0.00     19378
+
+    accuracy                           0.17    184321
+   macro avg       0.08      0.10      0.07    184321
+weighted avg       0.13      0.17      0.12    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.19470514837519665, 0.19546465578039385, 0.1781684027777778, 0.1742621527777778, 0.1779513888888889, 0.033528645833333336, 0.044867621527777776, 0.17529296875, 0.17909071180555555, 0.17203776041666666]
+Accuracy: 15.25 %
+Accuracy: 0.1525 (0.0572)
 
 '''
 
