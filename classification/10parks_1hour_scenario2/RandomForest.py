@@ -92,9 +92,19 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+
+
 
 print("training model")
 # TRAINING THE RANDOM FOREST CLASSIFICATION MODEL ON THE TRAINING SET
@@ -111,30 +121,62 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    0    3    6   25   57   57   39   17   18]
- [   1    2    5   18   95  196  229  173   74   46]
- [   0    5   19   90  257  568  729  536  224  157]
- [   3   15   45  196  656 1383 1710 1190  520  415]
- [   6   20   78  358 1115 2490 3122 2314  961  772]
- [   7   33  118  475 1599 3578 4630 3433 1328 1059]
- [  15   34  134  559 1775 3940 5059 3774 1592 1127]
- [  12   31  121  497 1558 3598 4423 3295 1426 1011]
- [  10   21   79  353 1151 2375 3129 2349  935  714]
- [  10   19   90  301 1008 2155 2719 2027  813  646]]
-0.16108766180922515
-DONE ***********
+[[   0    0   10   21   76  101  120  111   54   34]
+ [   1   11   28   64  180  327  399  309  196  144]
+ [  16   28   90  249  581  931 1183  959  562  442]
+ [  12   76  219  591 1481 2367 2866 2368 1251  998]
+ [  34  120  392 1084 2545 4513 5196 4437 2416 1918]
+ [  51  180  599 1544 3767 6404 7380 6158 3463 2704]
+ [  71  202  613 1678 4142 7147 8393 6894 3913 3091]
+ [  48  182  594 1594 3571 6330 7372 6327 3466 2708]
+ [  19  120  380 1047 2643 4227 5303 4206 2419 1882]
+ [  26  115  337  902 2213 3797 4549 3705 2086 1648]]
+0.15423093407696356
+******* classification_report *********
+              precision    recall  f1-score   support
 
+           0       0.00      0.00      0.00       527
+           1       0.01      0.01      0.01      1659
+           2       0.03      0.02      0.02      5041
+           3       0.07      0.05      0.06     12229
+           4       0.12      0.11      0.12     22655
+           5       0.18      0.20      0.19     32250
+           6       0.20      0.23      0.21     36144
+           7       0.18      0.20      0.19     32192
+           8       0.12      0.11      0.11     22246
+           9       0.11      0.09      0.09     19378
+
+    accuracy                           0.15    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.15      0.15    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.16926165030109044, 0.16546411327510444, 0.15907118055555555, 0.1625434027777778, 0.14415147569444445, 0.14100477430555555, 0.10595703125, 0.14762369791666666, 0.15511067708333334, 0.14762369791666666]
+Accuracy: 14.98 %
+Accuracy: 0.1498 (0.0172)
 
 '''
 
