@@ -112,9 +112,17 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 print("training model")
 # TRAINING THE KNN MODEL ON THE TRAINING SET
@@ -123,37 +131,68 @@ from sklearn.neighbors import KNeighborsClassifier
 classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
 classifier.fit(X_train, y_train)
 
-# PREDICTING A NEW RESULT
-##print(classifier.predict(sc.transform([[30, 87000]])))
 
 print("predicting result")
 ## PREDICTING THE TEST SET RESULT
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    1    6   19   31   57   51   34   14    9]
- [   2   16   35   64  156  184  160  127   53   42]
- [  18   45   96  236  404  524  543  422  168  129]
- [  35   96  264  571  920 1284 1272  946  444  301]
- [  53  189  480 1010 1686 2368 2314 1782  781  573]
- [  85  239  722 1514 2437 3161 3552 2509 1170  871]
- [  89  313  738 1622 2640 3652 3854 2813 1302  986]
- [  88  231  712 1464 2355 3230 3269 2553 1241  829]
- [  54  181  467 1017 1672 2210 2378 1718  829  590]
- [  58  164  422  911 1472 1992 2030 1514  714  511]]
-0.14407395753084276
-DONE ***********
+[[   0    7   25   62   84   86  105   82   47   29]
+ [   8   32   73  140  246  347  347  249  122   95]
+ [  31   86  214  419  721 1041 1119  770  366  274]
+ [  66  210  548 1045 1800 2470 2648 1867  846  729]
+ [ 119  360  985 2008 3375 4622 4849 3404 1727 1206]
+ [ 148  496 1484 2805 4728 6538 6853 5008 2439 1751]
+ [ 154  564 1620 3265 5358 7396 7710 5493 2648 1936]
+ [ 158  556 1459 2828 4656 6595 6835 4876 2404 1825]
+ [ 122  367 1022 1981 3369 4387 4736 3358 1698 1206]
+ [  90  286  833 1683 2988 3837 4225 2951 1398 1087]]
+0.14417782021581915
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.01      0.02      0.01      1659
+           2       0.03      0.04      0.03      5041
+           3       0.06      0.09      0.07     12229
+           4       0.12      0.15      0.14     22655
+           5       0.18      0.20      0.19     32250
+           6       0.20      0.21      0.20     36144
+           7       0.17      0.15      0.16     32192
+           8       0.12      0.08      0.09     22246
+           9       0.11      0.06      0.07     19378
+
+    accuracy                           0.14    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.14      0.14    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.14870069983182335, 0.14799544295556882, 0.14615885416666666, 0.1332465277777778, 0.1396484375, 0.13368055555555555, 0.1364474826388889, 0.13780381944444445, 0.1393771701388889, 0.1403537326388889]
+Accuracy: 14.03 %
+Accuracy: 0.1403 (0.0053)
 
 '''
 
