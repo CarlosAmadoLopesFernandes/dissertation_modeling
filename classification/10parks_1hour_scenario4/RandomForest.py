@@ -1,26 +1,8 @@
-'''
 
-    MULTI-CLASS CLASSIFICATION
-    Refers to those classification tasks that have more than two class labels.
-
-    Unlike binary classification, multi-class classification does not have the notion of normal and abnormal outcomes.
-    Instead, examples are classified as belonging to one among a range of known classes
-
-    Popular algorithms that can be used for mult-class classification include:
-        . KNN
-        . Decision trees
-        . Naive Bayes
-        . Random Forest
-        . Gradient Boosting
-'''
-import mysql.connector
-from datetime import datetime
-import pytz
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
-import matplotlib.pyplot as plt
-import pymysql
+
 
 db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
 db_connection = create_engine(db_connection_str)
@@ -83,9 +65,18 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+
 
 
 print("training model")
@@ -100,28 +91,63 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    1    5   14   27   40   49   37   30   19]
- [   1    6   17   46   89  174  208  144   87   67]
- [  10   13   43  138  304  492  605  459  281  240]
- [  13   45  140  327  711 1158 1387 1107  680  565]
- [  25   80  223  634 1319 2159 2446 2145 1215  990]
- [  34  104  305  887 1844 3149 3659 3061 1749 1468]
- [  39  119  386  958 2061 3498 4020 3282 2039 1607]
- [  37  106  349  883 1797 3099 3422 3000 1809 1470]
- [  17   68  239  591 1336 2154 2444 2039 1215 1013]
- [  19   75  206  562 1158 1839 2170 1812 1081  866]]
-0.15132214277188832
+[[   0    3   13   35   77   94  101  100   54   50]
+ [   4   18   43  102  207  307  327  291  197  163]
+ [  19   58  143  330  596  823 1020  895  616  541]
+ [  32  132  385  820 1486 2114 2486 2115 1447 1212]
+ [  66  210  620 1464 2740 4073 4469 3922 2760 2331]
+ [  85  322  933 2075 3923 5811 6327 5622 3915 3237]
+ [ 113  353 1019 2340 4370 6454 7193 6184 4389 3729]
+ [  82  305  904 2157 3777 5676 6335 5742 3872 3342]
+ [  57  202  664 1377 2727 3808 4542 3922 2728 2219]
+ [  49  179  523 1261 2378 3440 3806 3384 2335 2023]]
+0.14766629955349633
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.01      0.01      0.01      1659
+           2       0.03      0.03      0.03      5041
+           3       0.07      0.07      0.07     12229
+           4       0.12      0.12      0.12     22655
+           5       0.18      0.18      0.18     32250
+           6       0.20      0.20      0.20     36144
+           7       0.18      0.18      0.18     32192
+           8       0.12      0.12      0.12     22246
+           9       0.11      0.10      0.11     19378
+
+    accuracy                           0.15    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.15      0.15    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.13871860250637444, 0.14528291650843594, 0.1474066840277778, 0.15272352430555555, 0.1395941840277778, 0.14127604166666666, 0.13427734375, 0.15223524305555555, 0.1465386284722222, 0.14784071180555555]
+Accuracy: 14.46 %
+Accuracy: 0.1446 (0.0057)
+
 '''
 
 
