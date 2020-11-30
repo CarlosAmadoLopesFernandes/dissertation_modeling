@@ -71,9 +71,18 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+
 
 
 print("training model")
@@ -88,31 +97,65 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 MAKING CONFUSION MATRIX
-[[   1    1    9   14   23   34   41   39   33   28]
- [   5    8   33   59  106  129  181  148   95   75]
- [   3   39   73  198  328  451  484  404  319  286]
- [  29   68  213  399  764 1008 1175 1111  709  657]
- [  43  112  334  785 1340 1944 2112 2007 1362 1197]
- [  54  178  502 1125 2002 2749 3198 2802 1931 1719]
- [  59  191  536 1268 2201 3079 3433 3063 2222 1957]
- [  58  160  468 1146 1898 2752 3117 2765 1936 1672]
- [  43  123  330  746 1346 1873 2113 1965 1353 1224]
- [  36  104  312  657 1257 1615 1916 1645 1217 1029]]
-0.1426850837121993
-DONE ***********
+[[   1    2   21   36   68   83  111  101   54   50]
+ [   9   15   45  107  204  290  317  293  214  165]
+ [  13   51  140  333  588  891 1007  882  614  522]
+ [  30  116  344  810 1526 2121 2411 2207 1393 1271]
+ [  54  210  599 1475 2671 3988 4495 3974 2815 2374]
+ [  83  307  890 2066 3966 5678 6344 5659 3920 3337]
+ [  97  362 1007 2350 4215 6343 7205 6302 4391 3872]
+ [  89  293  892 2127 3798 5639 6467 5627 3870 3390]
+ [  66  213  630 1398 2655 3896 4469 3877 2670 2372]
+ [  55  176  510 1271 2366 3342 3814 3443 2405 1996]]
+0.14546904584936063
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.01      0.01      0.01      1659
+           2       0.03      0.03      0.03      5041
+           3       0.07      0.07      0.07     12229
+           4       0.12      0.12      0.12     22655
+           5       0.18      0.18      0.18     32250
+           6       0.20      0.20      0.20     36144
+           7       0.17      0.17      0.17     32192
+           8       0.12      0.12      0.12     22246
+           9       0.10      0.10      0.10     19378
+
+    accuracy                           0.15    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.15      0.15    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.14452340910323877, 0.14555416915314925, 0.14485677083333334, 0.14046223958333334, 0.0920138888888889, 0.11729600694444445, 0.08447265625, 0.10856119791666667, 0.13671875, 0.14588758680555555]
+Accuracy: 12.60 %
+Accuracy: 0.1260 (0.0225)
 
 Process finished with exit code 0
+
 
 
 '''
