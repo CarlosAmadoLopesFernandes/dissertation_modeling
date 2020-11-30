@@ -67,9 +67,17 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 print("training model")
 # TRAINING THE NAIVE BAYES MODEL ON THE TRAINING SET
@@ -83,29 +91,68 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
+
 
 '''
+
 MAKING CONFUSION MATRIX
-[[   0    0    0    0   30   48   77   45   15    8]
- [   0    0    0    0  105  163  307  191   69    4]
- [   0    0    0    0  298  501  972  556  210   48]
- [   0    0    0    0  739 1236 2236 1360  467   95]
- [   0    0    0    0 1323 2126 4201 2482  911  193]
- [   0    0    0    0 1976 3106 6079 3562 1254  283]
- [   0    0    0    0 2174 3444 6745 3987 1377  282]
- [   0    0    0    0 1863 3023 5995 3505 1301  285]
- [   0    0    0    0 1356 2103 4100 2496  869  192]
- [   0    0    0    0 1135 1919 3682 2083  772  197]]
-0.17084233026985385
-DONE ***********
+[[    0     0     0     0    23   290   162    36    15     1]
+ [    0     0     0     0    64   955   508    93    39     0]
+ [    0     0     0     0   215  2821  1621   281   102     1]
+ [    0     0     0     0   468  6810  3937   735   274     5]
+ [    0     0     0     0   864 12676  7306  1276   526     7]
+ [    0     0     0     0  1189 17952 10435  1881   788     5]
+ [    0     0     0     0  1363 20211 11691  2056   807    16]
+ [    0     0     0     0  1236 18095 10336  1796   715    14]
+ [    0     0     0     0   859 12296  7264  1315   504     8]
+ [    0     0     0     0   770 10783  6250  1089   481     5]]
+0.17801552725950923
+
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.00      0.00      0.00      1659
+           2       0.00      0.00      0.00      5041
+           3       0.00      0.00      0.00     12229
+           4       0.12      0.04      0.06     22655
+           5       0.17      0.56      0.27     32250
+           6       0.20      0.32      0.24     36144
+           7       0.17      0.06      0.08     32192
+           8       0.12      0.02      0.04     22246
+           9       0.08      0.00      0.00     19378
+
+    accuracy                           0.18    184321
+   macro avg       0.09      0.10      0.07    184321
+weighted avg       0.14      0.18      0.12    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.19394564096999944, 0.1950306515488526, 0.1757269965277778, 0.1748046875, 0.1765407986111111, 0.18424479166666666, 0.08002387152777778, 0.17431640625, 0.17860243055555555, 0.1731228298611111]
+Accuracy: 17.06 %
+Accuracy: 0.1706 (0.0311)
+
+Process finished with exit code 0
+
 
 '''
 
