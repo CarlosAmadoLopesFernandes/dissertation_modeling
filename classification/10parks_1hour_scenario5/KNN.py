@@ -69,9 +69,17 @@ y = dataset.iloc[:, -1].values
 
 print("split dataset")
 ## SPLITIING INTO TRAINING SET AND TEST SET
-from sklearn.model_selection import train_test_split
+##from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+##X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=2)
+kf.get_n_splits(X)
+
+for train_index, test_index in kf.split(X):
+    print("TRAIN: ", train_index, "TEST: ", test_index)
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 print("training model")
 # TRAINING THE KNN MODEL ON THE TRAINING SET
@@ -84,30 +92,66 @@ print("predicting result")
 y_pred = classifier.predict(X_test)
 print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
 
+## METRICS
 print("MAKING CONFUSION MATRIX")
 ##MAKING THE CONFUSION MATRIX
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 print(accuracy_score(y_test, y_pred))
-print("DONE ***********")
+
+report = classification_report(y_test, y_pred)
+print("******* classification_report *********")
+print(report)
+
+
+print("******  ACCURACY WITH CROSS VALIDATION ****** ")
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator=classifier, X=X_train, y=y_train, cv=10)
+print(list(accuracies))
+print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
+print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
 '''
 
 MAKING CONFUSION MATRIX
-[[   1    2   11   24   27   49   38   41   16   14]
- [   2   21   35   75  117  190  168  132   55   44]
- [   9   34  104  254  417  513  541  410  172  131]
- [  30  101  290  558  892 1209 1313  920  491  329]
- [  53  173  497 1014 1713 2337 2327 1685  841  596]
- [  85  288  730 1478 2429 3341 3505 2428 1155  821]
- [  89  287  800 1666 2699 3624 3814 2791 1292  947]
- [  75  258  739 1498 2366 3298 3278 2470 1126  864]
- [  57  176  484 1076 1658 2222 2348 1702  842  551]
- [  54  139  439  901 1459 1975 2054 1497  731  539]]
-0.14543027961936178
-DONE ***********
+[[   0    9   25   46   87  112   93   79   47   29]
+ [   8   26   77  159  261  320  333  264  137   74]
+ [  27   71  236  450  711 1040 1097  780  350  279]
+ [  59  180  587 1018 1834 2524 2596 1914  883  634]
+ [ 118  337  998 2073 3238 4695 4928 3430 1697 1141]
+ [ 136  486 1477 2838 4758 6653 6884 5007 2348 1663]
+ [ 151  528 1630 3220 5346 7394 7819 5461 2712 1883]
+ [ 150  500 1363 2888 4682 6849 6724 4902 2389 1745]
+ [  98  313  960 1934 3194 4571 4867 3470 1721 1118]
+ [  89  295  911 1720 2892 3966 4086 3014 1408  997]]
+0.14436770633839877
+******* classification_report *********
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00       527
+           1       0.01      0.02      0.01      1659
+           2       0.03      0.05      0.04      5041
+           3       0.06      0.08      0.07     12229
+           4       0.12      0.14      0.13     22655
+           5       0.17      0.21      0.19     32250
+           6       0.20      0.22      0.21     36144
+           7       0.17      0.15      0.16     32192
+           8       0.13      0.08      0.10     22246
+           9       0.10      0.05      0.07     19378
+
+    accuracy                           0.14    184321
+   macro avg       0.10      0.10      0.10    184321
+weighted avg       0.15      0.14      0.14    184321
+
+******  ACCURACY WITH CROSS VALIDATION ****** 
+[0.14365540064015625, 0.13844734986166116, 0.1418185763888889, 0.13172743055555555, 0.1325954861111111, 0.1282009548611111, 0.14208984375, 0.1354709201388889, 0.13785807291666666, 0.14610460069444445]
+Accuracy: 13.78 %
+Accuracy: 0.1378 (0.0055)
+
+Process finished with exit code 0
+
 
 '''
 
