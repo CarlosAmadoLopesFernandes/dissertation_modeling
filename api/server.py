@@ -3,7 +3,7 @@ from flask_cors import CORS
 import pickle
 from kanpai import Kanpai
 import numpy as np
-from datetime import datetime
+from datetime import datetime, time
 import mysql.connector
 from pytz import timezone
 import requests
@@ -41,6 +41,14 @@ key = configs.config['google']['distances_key']
 def get_google_distance(origin_latitude, origin_longitude, destination_latitude, destination_longitude, key):
     url = 'https://maps.googleapis.com/maps/api/directions/json?units=imperial&origin=%s,%s&destination=%s,%s&key=%s&mode=walking'%(origin_latitude, origin_longitude, destination_latitude, destination_longitude, key )
     return requests.get(url)
+
+
+def hours_minutes_seconds(td):
+    seconds = td.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return hours, minutes, seconds
 
 
 
@@ -268,106 +276,125 @@ def predict2():
                     "status": "Error",
                     "errors": "Sorry, its not possible calculate occupations for given date"
                 }), 503'''
+            given_user_hour = data['date'].time()
             for park in parks_data:
-                columns = pickle.load(open('models/10_parks_1_hour_scenario1/model_columns.pkl', 'rb'))
-                print(columns)
-                ## GET PLACES OF PARK
-                query_places = "SELECT * FROM `dissertation`.`places` where park_name = %s LIMIT 5"
-                park_name = park[3]
-                mycursor.execute(query_places, (park_name,))
-                places_data = mycursor.fetchall()
-                for index, col in enumerate(columns):
-                    if col == "day":
-                        columns[index] = data["date"].day
-                    elif col == "month":
-                        columns[index] = data["date"].month
-                    elif col == "year":
-                        columns[index] = data["date"].year
-                    elif col == "hour":
-                        columns[index] = data["date"].hour
-                    elif col == "weekDay":
-                        columns[index] = data["date"].weekday()
-                    elif col == "isWeekend":
-                        if data["date"].weekday() == 5 or data["date"].weekday() == 6:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
+                park_open_delta_time = park[6]
+                park_close_delta_time = park[7]
+                ## park open time and park_close time are timedelte, not datetime.time
+                time_aux1 = hours_minutes_seconds(park_open_delta_time)
+                time_aux2 = hours_minutes_seconds(park_close_delta_time)
 
-                    elif col == "isHoliday":
-                        if holiday_data is not None:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col == "precipIntensity":
-                        columns[index] = closest_weather_info["precipIntensity"]
-                    elif col == "precipProbability":
-                        columns[index] = closest_weather_info["precipProbability"]
-                    elif col == "temperature":
-                        columns[index] = closest_weather_info["temperature"]
+                park_open_time = time(time_aux1[0], time_aux1[1], time_aux1[2])
+                park_close_time = time(time_aux2[0], time_aux2[1], time_aux2[2])
 
-                    elif col == "apparentTemperature":
-                        columns[index] = closest_weather_info["apparentTemperature"]
-                    elif col == "windSpeed":
-                        columns[index] = closest_weather_info["windSpeed"]
+                isBeetween = (park_close_time > park_open_time and given_user_hour >= park_open_time and given_user_hour <= park_close_time)  or (park_close_time < park_open_time and (given_user_hour >= park_open_time or given_user_hour <= park_close_time))
 
-                    elif col == "numberOfSpaces":
-                        columns[index] = park[8]
-                    elif col == "hourlyPrice":
-                        columns[index] = park[17]
-                    elif col.startswith("parkName"):
-                        if col == "parkName_" + park[3]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("parkingGroupName"):
-                        if col == "parkingGroupName_" + park[2]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("place1Type"):
-                        if col == "place1Type_" + places_data[0][7]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("place2Type"):
-                        if col == "place2Type_" + places_data[1][7]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("place3Type"):
-                        if col == "place3Type_" + places_data[2][7]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("place4Type"):
-                        if col == "place4Type_" + places_data[3][7]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
-                    elif col.startswith("place5Type"):
-                        if col == "place5Type_" + places_data[4][7]:
-                            columns[index] = 1
-                        else:
-                            columns[index] = 0
+                if isBeetween:
+                    columns = pickle.load(open('models/10_parks_1_hour_scenario1/model_columns.pkl', 'rb'))
+                    print(columns)
+                    ## GET PLACES OF PARK
+                    query_places = "SELECT * FROM `dissertation`.`places` where park_name = %s LIMIT 5"
+                    park_name = park[3]
+                    mycursor.execute(query_places, (park_name,))
+                    places_data = mycursor.fetchall()
+                    for index, col in enumerate(columns):
+                        if col == "day":
+                            columns[index] = data["date"].day
+                        elif col == "month":
+                            columns[index] = data["date"].month
+                        elif col == "year":
+                            columns[index] = data["date"].year
+                        elif col == "hour":
+                            columns[index] = data["date"].hour
+                        elif col == "weekDay":
+                            columns[index] = data["date"].weekday()
+                        elif col == "isWeekend":
+                            if data["date"].weekday() == 5 or data["date"].weekday() == 6:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
 
-                prediction = model.predict([np.array(columns)])
+                        elif col == "isHoliday":
+                            if holiday_data is not None:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col == "precipIntensity":
+                            columns[index] = closest_weather_info["precipIntensity"]
+                        elif col == "precipProbability":
+                            columns[index] = closest_weather_info["precipProbability"]
+                        elif col == "temperature":
+                            columns[index] = closest_weather_info["temperature"]
 
-                response_google_distance = get_google_distance(destination_latitude, destination_longitude, park[4], park[5], key)
+                        elif col == "apparentTemperature":
+                            columns[index] = closest_weather_info["apparentTemperature"]
+                        elif col == "windSpeed":
+                            columns[index] = closest_weather_info["windSpeed"]
 
-                try:
-                    distance_data = response_google_distance.json()
-                    distance = {
-                        'distance': distance_data['routes'][0]['legs'][0]['distance'],
-                        'duration': distance_data['routes'][0]['legs'][0]['duration'],
+                        elif col == "numberOfSpaces":
+                            columns[index] = park[8]
+                        elif col == "hourlyPrice":
+                            columns[index] = park[17]
+                        elif col.startswith("parkName"):
+                            if col == "parkName_" + park[3]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("parkingGroupName"):
+                            if col == "parkingGroupName_" + park[2]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("place1Type"):
+                            if col == "place1Type_" + places_data[0][7]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("place2Type"):
+                            if col == "place2Type_" + places_data[1][7]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("place3Type"):
+                            if col == "place3Type_" + places_data[2][7]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("place4Type"):
+                            if col == "place4Type_" + places_data[3][7]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+                        elif col.startswith("place5Type"):
+                            if col == "place5Type_" + places_data[4][7]:
+                                columns[index] = 1
+                            else:
+                                columns[index] = 0
+
+                    prediction = model.predict([np.array(columns)])
+
+                    response_google_distance = get_google_distance(destination_latitude, destination_longitude, park[4], park[5], key)
+
+                    try:
+                        distance_data = response_google_distance.json()
+                        distance = {
+                            'distance': distance_data['routes'][0]['legs'][0]['distance'],
+                            'duration': distance_data['routes'][0]['legs'][0]['duration'],
+                        }
+                    except:
+                        distance = "No Data"
+
+                    final_return[park[1]] = {
+                        "park_name": park[3],
+                        "prediction": str(prediction),
+                        'distance': distance
                     }
-                except:
-                    distance = "No Data"
+                else:
+                    final_return[park[1]] = {
+                        "park_name": park[3],
+                        "prediction": "-",
+                    }
 
-                final_return[park[1]] = {
-                    "park_name": park[3],
-                    "prediction": str(prediction),
-                    'distance': distance
-                }
         else:
             print("ERROR MAN")
             return jsonify({
@@ -376,7 +403,6 @@ def predict2():
             }), 503
 
         return jsonify(final_return)
-
 
     except Exception as e:
         print(e)
