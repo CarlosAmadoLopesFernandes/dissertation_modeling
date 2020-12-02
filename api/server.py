@@ -353,15 +353,15 @@ def predict2():
                 prediction = model.predict([np.array(columns)])
 
                 response_google_distance = get_google_distance(destination_latitude, destination_longitude, park[4], park[5], key)
-                if response_google_distance:
+
+                try:
                     distance_data = response_google_distance.json()
                     distance = {
                         'distance': distance_data['routes'][0]['legs'][0]['distance'],
                         'duration': distance_data['routes'][0]['legs'][0]['duration'],
                     }
-
-                else:
-                    distance = "No data"
+                except:
+                    distance = "No Data"
 
                 final_return[park[1]] = {
                     "park_name": park[3],
