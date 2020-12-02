@@ -15,7 +15,8 @@ config = {
         "api_key": "302b25673cfabed60ce47bebdda64afd",
     },
     "google": {
-        "api_key": "AIzaSyAdTtHN9lGip2TNWhUUPoPAL1kVWZCqehY"
+        "places_key": "AIzaSyAdTtHN9lGip2TNWhUUPoPAL1kVWZCqehY",
+        "distances_key": "AIzaSyAFfMLV_hYVUkS5rKlwRgFTXlyuXP38vwU"
     },
     "general": {
         "brussels_latitude": 50.85045,
