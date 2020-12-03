@@ -157,5 +157,5 @@ Accuracy: 0.1727 (0.0282)
 '''
 
 import pickle
-pickle.dump(classifier, open('../../api/models/10_parks_1_hour_scenario1/naive_bayes.pkl', 'wb'))
-pickle.dump(list(dataset.columns)[:-1], open('../../api/models/10_parks_1_hour_scenario1/model_columns.pkl', 'wb'))
+pickle.dump(classifier, open('../../exported_models/10_parks_1_hour_scenario1/naive_bayes.pkl', 'wb'))
+pickle.dump(list(dataset.columns)[:-1], open('../../exported_models/10_parks_1_hour_scenario1/model_columns.pkl', 'wb'))
