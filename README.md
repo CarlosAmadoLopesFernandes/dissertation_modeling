@@ -1,4 +1,4 @@
 # dissertation_modeling
 
 ###Random Forest is the best model. The .pkl file exported from model is too large, therefore the file was added to gitignore
-###File can be obtained in following link https://drive.google.com/file/d/1eE4ulNx0_dUPRrsnsoFRUHUiB3_j0ytJ/view?usp=sharing
+###File can be obtained with following link https://drive.google.com/file/d/1eE4ulNx0_dUPRrsnsoFRUHUiB3_j0ytJ/view?usp=sharing
