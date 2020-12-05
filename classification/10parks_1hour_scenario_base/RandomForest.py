@@ -114,6 +114,8 @@ print(list(accuracies))
 print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
 print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
+print("cenas")
+
 
 '''
 MAKING CONFUSION MATRIX
