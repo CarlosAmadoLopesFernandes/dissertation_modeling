@@ -143,3 +143,4 @@ dmypy.json
 .prof
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+/exported_models/10_parks_1_hour_scenario1/random_forest.pkl

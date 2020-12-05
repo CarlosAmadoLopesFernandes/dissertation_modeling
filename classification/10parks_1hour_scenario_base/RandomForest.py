@@ -114,8 +114,6 @@ print(list(accuracies))
 print("Accuracy: {:.2f} %".format(accuracies.mean()*100))
 print("Accuracy: %.4f (%.4f)" % (accuracies.mean(), accuracies.std()))
 
-print("cenas")
-
 
 '''
 MAKING CONFUSION MATRIX
@@ -156,6 +154,11 @@ Accuracy: 0.1362 (0.0237)
 Process finished with exit code 0
 
 '''
+
+
+import pickle
+pickle.dump(classifier, open('../../exported_models/10_parks_1_hour_scenario1/random_forest.pkl', 'wb'))
+pickle.dump(list(dataset.columns)[:-1], open('../../exported_models/10_parks_1_hour_scenario1/model_columns.pkl', 'wb'))
 
 
 
