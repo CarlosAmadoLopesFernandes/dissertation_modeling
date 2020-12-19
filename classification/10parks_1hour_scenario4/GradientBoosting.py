@@ -22,7 +22,7 @@ from sqlalchemy import create_engine
 import matplotlib.pyplot as plt
 import pymysql
 
-db_connection_str = 'mysql+pymysql://root:test@localhost/dissertation'
+db_connection_str = 'mysql+pymysql://root:Fd=D((:+%"`2fBRt@localhost/dissertation'
 db_connection = create_engine(db_connection_str)
 
 accepted_columns = ['parkName', 'day', 'month', 'year', 'hour', 'weekDay', 'occupancy', 'isWeekend', 'isHoliday',
